@@ -31,8 +31,17 @@ indieweb/push supports psr-0 autoloading, so using the classes is easy provided 
 	<?php
 	// This script uses some indieweb/salmon code
 	
-	use indieweb\Salmon;
+	use indieweb\Salmon\MagicSignatures;
 	
-	// **Insert Code Here**
-
-TODO: Add usage examples when class is improved and tested
+	$ms = new MagicSignatures;
+	
+	$json_magic_envelope = $ms -> sign('Here is some data', 'text/text', '/path/to/your/key/private.pem', '');
+	
+	if ($ms -> verify($json_magic_envelope, '/path/to/your/key/public.pem'))
+	{
+		// Verified! The envelope was signed by the issuer
+	}
+	else
+	{
+		// Verification failed - the envelope was either incorrectly handled or has been modified in transit!
+	}

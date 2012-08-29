@@ -51,27 +51,28 @@ class MagicSignatures
 	 * @param  String $pass     The password for $pemfile 
 	 * @return String Magic Signature in JSON format
 	 */
-	public function sign($file, $datatype, $pemfile, $pass){
-			$data = base64url_encode($file);
-			$m = $data . base64url_encode($datatype) . ".base64url.RSA-SHA256";
-			// echo "\n========= M ==========\n" . $m . "\n";
-			$hash = hash("sha256",$m);
-			// Get Private Key
-			$fp=fopen($pemfile,"r"); 
-			$priv_key=fread($fp,8192); 
-			fclose($fp); 
-	
-			$res = openssl_get_privatekey($priv_key,$pass); 
-			openssl_private_encrypt($hash,$bsig,$res); 
-	
-			$arr=array("data"=>$data,"data_type"=>$datatype,
-			"encoding"=>"base64url",
-			"alg"=>"RSA-SHA256",
-			"sigs"=>
-			array(  "value"=>base64url_encode($bsig),
-					"keyhash"=>$hash)
-			);
-			return json_encode($arr);
+	public function sign($file, $datatype, $pemfile, $pass)
+	{
+		$data = base64url_encode($file);
+		$m = $data . base64url_encode($datatype) . ".base64url.RSA-SHA256";
+		// echo "\n========= M ==========\n" . $m . "\n";
+		$hash = hash("sha256", $m);
+		// Get Private Key
+		$fp=fopen($pemfile, "r"); 
+		$priv_key=fread($fp,8192); 
+		fclose($fp); 
+
+		$res = openssl_get_privatekey($priv_key, $pass); 
+		openssl_private_encrypt($hash, $bsig, $res); 
+
+		$arr=array("data"=>$data,"data_type"=>$datatype,
+		"encoding"=>"base64url",
+		"alg"=>"RSA-SHA256",
+		"sigs"=>
+		array("value"=>base64url_encode($bsig),
+			"keyhash"=>$hash)
+		);
+		return json_encode($arr);
 	}
 	
 	/** 
@@ -81,36 +82,37 @@ class MagicSignatures
 	 * @return true if the signature is valid. false if not. 
 	 */
 	
-	public function verify($data, $pemfile){ 
-			$fp=fopen ($pemfile,"r"); 
-			$pub_key=fread($fp,8192); 
-			fclose($fp); 
-			openssl_get_publickey($pub_key); 
-			$arr=json_decode($data,true);
-			// print_r($arr);
-			$sigs=$arr["sigs"];
-			$value=$sigs["value"];
-			openssl_public_decrypt(base64url_decode($value),$nhash,$pub_key); 
-	
-			// Compute Hash from data. 
-			$m = $arr["data"] . base64url_encode($arr["data_type"]) . ".base64url.RSA-SHA256";
-	
-			$chash = hash("sha256",$m);
-			if($debug=1){
-					echo "\n" . $m . "\n";
-					echo "\nvalue  :" . $sigs["value"];
-					echo "\nkeyhash:" . $sigs["keyhash"];
-					echo "\nnewhash:" . $nhash;
-					echo "\nchash  :" . $chash;
-					echo "\n\n";
-			}
-	
-			// Hash Must Match
-			if ($chash==$nhash && $nhash==$sigs["keyhash"]){
-					return true;
-			} else {
-					return false;
-			}
+	public function verify($data, $pemfile)
+	{ 
+		$fp=fopen ($pemfile, "r"); 
+		$pub_key=fread($fp, 8192); 
+		fclose($fp); 
+		openssl_get_publickey($pub_key); 
+		$arr=json_decode($data, true);
+		// print_r($arr);
+		$sigs=$arr["sigs"];
+		$value=$sigs["value"];
+		openssl_public_decrypt(base64url_decode($value), $nhash, $pub_key); 
+
+		// Compute Hash from data. 
+		$m = $arr["data"] . base64url_encode($arr["data_type"]) . ".base64url.RSA-SHA256";
+
+		$chash = hash("sha256", $m);
+		if($debug=1){
+			echo "\n" . $m . "\n";
+			echo "\nvalue  :" . $sigs["value"];
+			echo "\nkeyhash:" . $sigs["keyhash"];
+			echo "\nnewhash:" . $nhash;
+			echo "\nchash  :" . $chash;
+			echo "\n\n";
+		}
+
+		// Hash Must Match
+		if ($chash==$nhash && $nhash==$sigs["keyhash"]){
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
