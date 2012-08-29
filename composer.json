@@ -1,0 +1,11 @@
+{
+    "name": "indieweb/salmon",
+    "type": "library",
+    "description": "A set of PSR-0 autoloadable classes for dealing with the Salmon protocol and magic signatures",
+    "keywords": ["salmon", "magic signatures", "indieweb", "ostatus"],
+    "autoload": {
+        "psr-0": {
+            "indieweb\\Salmon": ""
+        }
+    }
+}
